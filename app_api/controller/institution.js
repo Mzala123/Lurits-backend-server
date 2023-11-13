@@ -37,13 +37,12 @@ module.exports.add_institutions = async(req, res)=>{
 module.exports.institution_list = (req, res)=>{
     Institution
       .find({})
-      .exec((err, institution)=>{
-          if(institution){
+      .exec()
+      .then((institution)=>{
             sendJSONResponse(res, 200, institution)
-          }else {
-            sendJSONResponse(res, 404, err)
-          }
-      })
+        }).catch((error)=>{
+            sendJSONResponse(res, 404, error)
+        })
 
 }
 
@@ -53,16 +52,13 @@ module.exports.read_one_institution = (req, res)=>{
     }else{
         Institution
           .findById(req.params.institutionId)
-          .exec((institution, err)=>{
-            if (!institution) {
-                sendJSONresponse(res, 404, { "message": "no such patient record" })
-              }
-              else if (err) {
-                sendJSONresponse(res, 404, err)
-              } else {
-                sendJSONresponse(res, 200, institution)
-              }
+          .exec()
+          .then((institution)=>{
+             sendJSONResponse(res, 200, institution)
+          }).catch((error)=>{
+             sendJSONResponse(res, 404, error)
           })
+           
     }
 
 }
