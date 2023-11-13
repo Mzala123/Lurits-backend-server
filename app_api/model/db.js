@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const dbURL = "mongodb+srv://Mzala:bounce123@mzalacluster.qqifv.mongodb.net/LuritsDB"
+const dbURL = process.env.dbURL
 mongoose.connect(dbURL)
 
 mongoose.connection.on('connection', function(){

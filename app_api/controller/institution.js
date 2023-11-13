@@ -35,11 +35,24 @@ module.exports.add_institutions = async(req, res)=>{
 
 
 module.exports.institution_list = (req, res)=>{
-    
+    Institution
+      .find({})
+      .exec((err, institution)=>{
+          if(institution){
+            sendJSONResponse(res, 200, institution)
+          }else {
+            sendJSONResponse(res, 404, err)
+          }
+      })
 
 }
 
 module.exports.read_one_institution = (req, res)=>{
+    if(!req.params.institutionId){
+        sendJSONResponse(res, 404, {"message":"institution id is required!"})
+    }else{
+        
+    }
 
 }
 
