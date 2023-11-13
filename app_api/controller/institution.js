@@ -49,9 +49,20 @@ module.exports.institution_list = (req, res)=>{
 
 module.exports.read_one_institution = (req, res)=>{
     if(!req.params.institutionId){
-        sendJSONResponse(res, 404, {"message":"institution id is required!"})
+        sendJSONResponse(res, 404, {"message":"not found, institution id is required!"})
     }else{
-        
+        Institution
+          .findById(req.params.institutionId)
+          .exec((institution, err)=>{
+            if (!institution) {
+                sendJSONresponse(res, 404, { "message": "no such patient record" })
+              }
+              else if (err) {
+                sendJSONresponse(res, 404, err)
+              } else {
+                sendJSONresponse(res, 200, institution)
+              }
+          })
     }
 
 }
