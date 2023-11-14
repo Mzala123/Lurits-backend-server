@@ -87,6 +87,7 @@ module.exports.login = (req, res)=>{
         var token
         if(err){
             sendJSONresponse(res, 400, err)
+            console.log(err)
             return;
         }if(user){
             token = user.generateJwt()
