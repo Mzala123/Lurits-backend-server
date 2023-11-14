@@ -8,6 +8,7 @@ var logger = require('morgan');
 var cors = require('cors')
 
 require('./app_api/model/db')
+require('./app_api/config/passport')
 
 
 var routerApi = require('./routes/index');

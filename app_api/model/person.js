@@ -12,7 +12,7 @@ const personSchema = new mongoose.Schema({
    profile_photo: {type:String, 'default': 'null photo'},
    address: {type:String, 'default':'N/A'},
    place_residence: {type: String, 'default':'N/A'},
-   institutionId: {type: Number, required: true}
+   institutionId: {type: Number}
 })
 
 mongoose.model("Person", personSchema)
