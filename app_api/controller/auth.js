@@ -56,7 +56,7 @@ module.exports.register_user = (req, res)=>{
     // personId // generated after creating person
 
     let mailOptions = {
-        from: 'zackxbaby@gmail.com',
+        from: 'justicemwanzamj@gmail.com',
         to: req.body.email,
         subject: "User account credentials",
         text: 'username: '+req.body.email +'\r\nuser password: '+password
@@ -90,7 +90,6 @@ module.exports.register_user = (req, res)=>{
                                 sendJSONresponse(res, 201, {"message":"User Account created check your email for credentials", 'user':user_data, 'person': person})
                             }
                         })
-                          //sendJSONresponse(res, 201, {"message" :"User account created", 'user':user, 'person': person})
                        }).catch((error)=>{
                           sendJSONresponse(res, 404, {message:"Failed to create user"+error})
                        })   

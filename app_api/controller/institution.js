@@ -33,7 +33,6 @@ module.exports.add_institutions = async(req, res)=>{
 } 
 
 
-
 module.exports.institution_list = (req, res)=>{
     Institution
       .find({})

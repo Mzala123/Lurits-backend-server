@@ -19,6 +19,7 @@ router.put('/update_insititution/:institutionId', ctrlInst.update_insititution)
 // Auth
 router.post('/register', ctrlAuth.register_user)
 router.post('/login', ctrlAuth.login)
+//router.get('/')
 
 
 module.exports = router;
