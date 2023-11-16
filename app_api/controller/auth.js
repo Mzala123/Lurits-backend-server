@@ -4,10 +4,25 @@ const User = mongoose.model("User")
 const Person = mongoose.model("Person")
 const passport = require("passport")
 
+const nodemailer = require("nodemailer")
+
 var sendJSONresponse = function (res, status, content) {
     res.status(status)
     res.json(content)
 }
+
+var transporter = nodemailer.createTransport({
+    service:'gmail',
+    auth:{
+        type:'OAuth2',
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+        clientId: process.env.CLIENTID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN,
+        accessToken: process.env.ACCESS_TOKEN
+    }
+})
 
 module.exports.register_user = (req, res)=>{
 
@@ -40,6 +55,13 @@ module.exports.register_user = (req, res)=>{
     user.usertype_name = req.body.usertype_name // can be Head Master, Teacher, Super Admin or Learner
     // personId // generated after creating person
 
+    let mailOptions = {
+        from: 'zackxbaby@gmail.com',
+        to: req.body.email,
+        subject: "User account credentials",
+        text: 'username: '+req.body.email +'\r\nuser password: '+password
+    }
+
     User
       .findOne({username: req.body.email})
       .exec()
@@ -54,12 +76,21 @@ module.exports.register_user = (req, res)=>{
                   .save()
                   .then((person)=>{
                     user.personId = person._id
-                    console.log("The last inserted Id is"+ user.personId)
+                    console.log("The last inserted Id is"+user.personId)
                     console.log("The password is "+password)
                        user
                        .save()
-                       .then((user)=>{
-                          sendJSONresponse(res, 201, {"message" :"User account created", 'user':user, 'person': person})
+                       .then((user_data)=>{
+                          let token;
+                          token = user.generateJwt()
+                          transporter.sendMail(mailOptions, function(err, data){
+                            if(err){
+                                sendJSONresponse(res, 404, err)
+                            }else{
+                                sendJSONresponse(res, 201, {"message":"User Account created check your email for credentials", 'user':user_data, 'person': person})
+                            }
+                        })
+                          //sendJSONresponse(res, 201, {"message" :"User account created", 'user':user, 'person': person})
                        }).catch((error)=>{
                           sendJSONresponse(res, 404, {message:"Failed to create user"+error})
                        })   

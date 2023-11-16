@@ -7,7 +7,9 @@ const institutionSchema = new mongoose.Schema({
     institution_contact_no:{type: String},
     institution_zone_name:{type: String},
     institution_code:{type: String},
-    institution_icon:{type: String}
+    institution_icon:{type: String},
+    has_admin:{type:Boolean, 'default':false}
+
 })
 
 institutionSchema.pre('save', async function (next) {
