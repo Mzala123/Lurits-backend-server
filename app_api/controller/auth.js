@@ -185,3 +185,67 @@ module.exports.login = (req, res)=>{
     })(req, res);
 
 }
+
+module.exports.read_one_user_details = (req, res)=>{
+    const ObjectId = mongoose.Types.ObjectId
+    var userId = req.params.userId
+    
+    try {
+        userId = new ObjectId(userId);
+      } catch (error) {
+        sendJSONresponse(res, 400, { error: 'Invalid ObjectId' });
+        return;
+      }
+
+    User
+       .aggregate(
+        [
+          {
+            $match:{_id: {$eq:userId}}
+          },
+          {
+            $project:{
+                username:1,
+                usertype_name:1,
+                personId:1,
+                institution_name:1,
+                institution_address:1,
+                nationalId:1,
+                firstname:1,
+                lastname:1,
+                gender:1,
+                place_residence:1,
+                institutionId:1
+            }
+          }
+          ,{
+            $lookup:{
+                from:'people',
+                localField:'personId',
+                foreignField: '_id',
+                as: 'adminDocs'
+            }
+          },
+          {
+            $unwind: '$adminDocs' // Unwind the array created by $lookup
+          },
+          {
+           $lookup:{
+            from:'institutions',
+            localField:'adminDocs.institutionId',
+            foreignField: 'institution_id',
+            as:'userDetails'
+           } 
+          },
+          {
+            $unwind:'$userDetails'
+          }
+        ]).exec()
+        .then((data)=>{
+           sendJSONresponse(res, 200, data[0])
+        }).catch((error)=>{
+            sendJSONresponse(res, 401, error)
+        })
+
+
+}

@@ -8,6 +8,7 @@ router.get('/', function(req, res, next) {
 
 const ctrlInst = require('../app_api/controller/institution')
 const ctrlAuth = require('../app_api/controller/auth')
+const ctrlHeadTeacher = require('../app_api/controller/headteacher')
 
 
 router.post('/institution', ctrlInst.add_institutions)
@@ -19,7 +20,13 @@ router.get('/institution_based_admin_list', ctrlInst.institution_based_admin_lis
 // Auth
 router.post('/register', ctrlAuth.register_user)
 router.post('/login', ctrlAuth.login)
+router.get('/read_one_user_details/:userId', ctrlAuth.read_one_user_details)
 //router.get('/')
+
+
+//  head teacher section
+router.get('/learners_list_by_institution_id/:institutionId', ctrlHeadTeacher.learners_list_by_institution_id)
+router.get('/teachers_list_by_institution_id/:institutionId', ctrlHeadTeacher.teachers_list_by_institution_id)
 
 
 module.exports = router;
