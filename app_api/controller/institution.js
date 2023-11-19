@@ -62,6 +62,37 @@ module.exports.read_one_institution = (req, res)=>{
 
 }
 
-module.exports.update_insititution = (req, res)=>{
+module.exports.update_institution = (req, res)=>{
+    if(!req.body.institution_name || !req.body.institution_address){
+        sendJSONResponse(res, 404, {"message":"Please fill in all required fields"})
+        return
+    }
+
+    let institution_name = req.body.institution_name
+    let institution_address = req.body.institution_address
+    let institution_contact_no = req.body.institution_contact_no
+    let institution_zone_name = req.body.institution_zone_name
+    let institution_code = req.body.institution_code
+
+    if(!req.params.institutionId){
+        sendJSONResponse(res, 404, {"message":"Institution id is required"})
+    }else if(req.params && req.params.institutionId){
+        Institution
+            .updateOne({_id: req.params.institutionId},
+                {
+                    institution_name:institution_name,
+                    institution_address:institution_address,
+                    institution_contact_no:institution_contact_no,
+                    institution_zone_name:institution_zone_name,
+                    institution_code:institution_code
+
+                }
+            ).exec()
+            .then(()=>{
+                sendJSONResponse(res, 200, {"message":"Institution record updated!"})
+            }).catch((error)=>{
+                sendJSONResponse(res, 404, {"message":"failed to update institution record "+error})
+            })
+    }
 
 }
