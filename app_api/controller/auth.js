@@ -32,7 +32,7 @@ module.exports.register_user = (req, res)=>{
 
   
     if(!req.body.nationalId || !req.body.firstname || !req.body.lastname || 
-        !req.body.gender || !req.body.dob || !req.body.email || !req.body.usertype_name ||  !req.body.usertype){
+        !req.body.gender || !req.body.dob || !req.body.email || !req.body.usertype_name){
             sendJSONresponse(res, 404, {"message":"please fill in all required fields!"})
         }
         
@@ -49,7 +49,7 @@ module.exports.register_user = (req, res)=>{
         person.email = req.body.email
         person.phonenumber = req.body.phonenumber
         person.dob = req.body.dob
-        person.age = req.body.age
+        //person.age = req.body.age
         person.profile_photo = req.body.profile_photo
         person.address = req.body.address
         person.place_residence = req.body.place_residence
@@ -144,7 +144,7 @@ module.exports.register_user = (req, res)=>{
                                   .then((user_data)=>{
                                     let token;
                                     token = user.generateJwt()
-                                    sendJSONresponse(res, 200, {'Info':"Learner created successfully",'message': `PDF saved to ${filePath}`, 'user':user_data, 'person': person})
+                                    sendJSONresponse(res, 201, {'Info':"Learner created successfully",'message': `PDF saved to ${filePath}`, 'user':user_data, 'person': person})
                                   }).catch((error)=>{
                                     sendJSONresponse(res, 404, {"message":"An error while creating system user"+error})
                                   })
@@ -153,9 +153,7 @@ module.exports.register_user = (req, res)=>{
                                 sendJSONresponse(res, 404, {"message":"An error while adding person details"+error})
                             })
                         });
-                      
-                      
-
+                
                    }
             }
           })
