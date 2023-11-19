@@ -14,7 +14,7 @@ router.post('/institution', ctrlInst.add_institutions)
 router.get('/institution_list', ctrlInst.institution_list)
 router.get('/read_one_institution/:institutionId', ctrlInst.read_one_institution)
 router.put('/update_institution/:institutionId', ctrlInst.update_institution)
-router.get('/')
+router.get('/institution_based_admin_list', ctrlInst.institution_based_admin_list)
 
 // Auth
 router.post('/register', ctrlAuth.register_user)

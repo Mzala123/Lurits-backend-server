@@ -1,6 +1,8 @@
 const mongoose = require("mongoose")
-var Institution = mongoose.model("Institution")
-
+const { dash } = require("pdfkit")
+const Institution = mongoose.model("Institution")
+const Person = mongoose.model("Person")
+const User = mongoose.model("User")
 
 const sendJSONResponse = (res, status, content)=>{
     res.status(status)
@@ -94,5 +96,59 @@ module.exports.update_institution = (req, res)=>{
                 sendJSONResponse(res, 404, {"message":"failed to update institution record "+error})
             })
     }
+
+}
+
+module.exports.institution_based_admin_list = (req, res)=>{
+    const ObjectId = mongoose.Types.ObjectId
+    User
+       .aggregate(
+        [
+          {
+            $match:{usertype_name: {$eq:"Head Teacher"}}
+          },
+          {
+            $project:{
+                username:1,
+                usertype_name:1,
+                personId:1,
+                institution_name:1,
+                institution_address:1,
+                nationalId:1,
+                firstname:1,
+                lastname:1,
+                gender:1,
+                place_residence:1,
+                institutionId:1
+            }
+          }
+          ,{
+            $lookup:{
+                from:'people',
+                localField:'personId',
+                foreignField: '_id',
+                as: 'adminDocs'
+            }
+          },
+          {
+            $unwind: '$adminDocs' // Unwind the array created by $lookup
+          },
+          {
+           $lookup:{
+            from:'institutions',
+            localField:'adminDocs.institutionId',
+            foreignField: 'institution_id',
+            as:'userDetails'
+           } 
+          },
+          {
+            $unwind:'$userDetails'
+          }
+        ]).exec()
+        .then((data)=>{
+          sendJSONResponse(res, 200, data)
+        }).catch((error)=>{
+            sendJSONResponse(res, 401, error)
+        })
 
 }
