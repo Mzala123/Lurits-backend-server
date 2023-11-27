@@ -128,3 +128,179 @@ module.exports.teachers_list_by_institution_id = (req, res)=>{
 
 
 }
+
+module.exports.all_learners_by_institution_id =(req, res)=>{
+    var institutionId = req.params.institutionId;
+    Person.aggregate([
+        { $match: { institutionId: { $eq: +institutionId } } },
+        {
+            $lookup: {
+                from: 'users',
+                localField: '_id',
+                foreignField: 'personId',
+                as: 'learnerDocs'
+            }
+        },
+        {
+            $unwind: '$learnerDocs'
+        },
+        {
+            $match: { 'learnerDocs.usertype_name': 'Learner' }
+        },
+        {
+            $group: {
+                _id: '$learnerDocs.usertype_name',
+                countByAll: { $count: {} }
+            }
+        }
+    ]).exec()
+        .then((learnerGender) => {
+            sendJSONResponse(res, 200, learnerGender);
+        })
+        .catch((error) => {
+            sendJSONResponse(res, 404, error);
+        });
+
+}
+
+module.exports.learners_by_gender_by_institution_id = (req, res)=>{
+    var institutionId = req.params.institutionId;
+        Person.aggregate([
+            { $match: { institutionId: { $eq: +institutionId } } },
+            {
+              $lookup: {
+                from: 'users',
+                localField: '_id',
+                foreignField: 'personId',
+                as: 'learnerDocs'
+              }
+            },
+            {
+              $unwind: '$learnerDocs'
+            },
+            {
+              $match: { 'learnerDocs.usertype_name': 'Learner' }
+            },
+            {
+              $group: {
+                _id: '$gender',
+                countByGender: { $sum: 1 } // Count learners by gender
+              }
+            },
+            {
+              $group: {
+                _id: null, // No grouping
+                genderCounts: {
+                  $push: {
+                    gender: '$_id',
+                    count: '$countByGender'
+                  }
+                },
+                totalLearners: { $sum: '$countByGender' } // Sum the counts to get total
+              }
+            },
+            {
+              $project: {
+                genderCounts: {
+                  $concatArrays: [
+                    '$genderCounts',
+                    [{ gender: 'Total', count: '$totalLearners' }]
+                  ]
+                }
+              }
+            }
+          ]).exec()
+            .then((learnerGender) => {
+              sendJSONResponse(res, 200, learnerGender[0]);
+            })
+            .catch((error) => {
+              sendJSONResponse(res, 404, error);
+            });
+
+}
+
+module.exports.all_teachers_by_institution_id = (req, res)=>{
+    var institutionId = req.params.institutionId;
+    Person.aggregate([
+        { $match: { institutionId: { $eq: +institutionId } } },
+        {
+            $lookup: {
+                from: 'users',
+                localField: '_id',
+                foreignField: 'personId',
+                as: 'learnerDocs'
+            }
+        },
+        {
+            $unwind: '$learnerDocs'
+        },
+        {
+            $match: { 'learnerDocs.usertype_name': 'Teacher' }
+        },
+        {
+            $group: {
+                 _id: '$learnerDocs.usertype_name',
+                countByAll: { $count: {} }
+            }
+        }
+    ]).exec()
+        .then((learnerGender) => {
+            sendJSONResponse(res, 200, learnerGender);
+        })
+        .catch((error) => {
+            sendJSONResponse(res, 404, error);
+        });
+
+}
+
+module.exports.teachers_by_gender_by_institution_id = (req, res)=>{
+    var institutionId = req.params.institutionId;
+    Person.aggregate([
+        { $match: { institutionId: { $eq: +institutionId } } },
+        {
+            $lookup: {
+                from: 'users',
+                localField: '_id',
+                foreignField: 'personId',
+                as: 'learnerDocs'
+            }
+        },
+        {
+            $unwind: '$learnerDocs'
+        },
+        {
+            $match: { 'learnerDocs.usertype_name': 'Teacher' }
+        },
+        {
+            $group: {
+                _id: '$gender',
+                countByGender: { $sum: 1 } // Count learners by gender
+            }
+        },
+        {
+            $group: {
+                _id: null, // No grouping
+                totalTeachers: { $sum: '$countByGender' }, // Sum the counts by gender to get total
+                genderCounts: { $push: { gender: '$_id', count: '$countByGender' } }, // Array of gender counts
+            }
+        },
+        {
+            $project:{
+                genderCounts:{
+                    $concatArrays: [
+                        '$genderCounts',
+                        [{gender:'Total', count:'$totalTeachers'}]
+                    ]
+                }
+            }
+        }
+        
+    ]).exec()
+        .then((TeacherGender) => {
+            sendJSONResponse(res, 200, TeacherGender[0]);
+        })
+        .catch((error) => {
+            sendJSONResponse(res, 404, error);
+        });
+
+}

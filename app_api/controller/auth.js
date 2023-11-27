@@ -186,6 +186,67 @@ module.exports.login = (req, res)=>{
 
 }
 
+module.exports.update_user = (req, res)=>{
+        let firstname =  req.body.firstname;
+        let lastname = req.body.lastname;
+        let gender = req.body.gender;
+        let phonenumber = req.body.phonenumber
+        let dob = req.body.body
+        let address = req.body.address
+        let place_residence = req.body.place_residence
+
+        if(!req.params.personId){
+            sendJSONresponse(res, 404, {"message":"Person Id is required"})
+        }else if(req.params && req.params.personId){
+             Person
+               .updateOne({_id:req.params.personId},
+                {
+                    $set:{
+                        firstname: firstname,
+                        lastname: lastname,
+                        gender: gender,
+                        dob: dob,
+                        phonenumber: phonenumber,
+                        address: address,
+                        place_residence: place_residence
+                    }
+                }).exec()
+                 .then((success)=>{
+                    sendJSONresponse(res, 200,  {"message":"Person record updated successfully!"})
+                 }).catch((error)=>{
+                    sendJSONresponse(res, 404, error)
+                 })
+        }
+}
+
+module.exports.update_user_password = (req, res)=>{
+    let password = req.body.password
+    if(!req.params.userId){
+        sendJSONresponse(res, 404, {"message":"Not found, user id is required!"})
+    }else{
+        User
+         .findById(req.prams.userId)
+         .exec()
+         .then((user)=>{
+            if(!user){
+             sendJSONresponse(res, 404, {"message":"userId not found!"})
+            }else{
+                user.setPassword(password)
+                user
+                 .save()
+                 .then(()=>{
+                    sendJSONresponse(res, 200, {"message":"password updated successfully!"})
+                 }).catch((error)=>{
+                    sendJSONresponse(res, 404, {"message":"Failed to update password "+error})
+                 })
+            }
+         }).catch((error)=>{
+            sendJSONresponse(res, 404, error)
+         })
+    }
+
+}
+
 module.exports.read_one_user_details = (req, res)=>{
     const ObjectId = mongoose.Types.ObjectId
     var userId = req.params.userId
@@ -247,5 +308,6 @@ module.exports.read_one_user_details = (req, res)=>{
             sendJSONresponse(res, 401, error)
         })
 
-
 }
+
+
