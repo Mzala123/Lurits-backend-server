@@ -129,39 +129,7 @@ module.exports.teachers_list_by_institution_id = (req, res)=>{
 
 }
 
-module.exports.all_learners_by_institution_id =(req, res)=>{
-    var institutionId = req.params.institutionId;
-    Person.aggregate([
-        { $match: { institutionId: { $eq: +institutionId } } },
-        {
-            $lookup: {
-                from: 'users',
-                localField: '_id',
-                foreignField: 'personId',
-                as: 'learnerDocs'
-            }
-        },
-        {
-            $unwind: '$learnerDocs'
-        },
-        {
-            $match: { 'learnerDocs.usertype_name': 'Learner' }
-        },
-        {
-            $group: {
-                _id: '$learnerDocs.usertype_name',
-                countByAll: { $count: {} }
-            }
-        }
-    ]).exec()
-        .then((learnerGender) => {
-            sendJSONResponse(res, 200, learnerGender);
-        })
-        .catch((error) => {
-            sendJSONResponse(res, 404, error);
-        });
 
-}
 
 module.exports.learners_by_gender_by_institution_id = (req, res)=>{
     var institutionId = req.params.institutionId;
@@ -219,39 +187,6 @@ module.exports.learners_by_gender_by_institution_id = (req, res)=>{
 
 }
 
-module.exports.all_teachers_by_institution_id = (req, res)=>{
-    var institutionId = req.params.institutionId;
-    Person.aggregate([
-        { $match: { institutionId: { $eq: +institutionId } } },
-        {
-            $lookup: {
-                from: 'users',
-                localField: '_id',
-                foreignField: 'personId',
-                as: 'learnerDocs'
-            }
-        },
-        {
-            $unwind: '$learnerDocs'
-        },
-        {
-            $match: { 'learnerDocs.usertype_name': 'Teacher' }
-        },
-        {
-            $group: {
-                 _id: '$learnerDocs.usertype_name',
-                countByAll: { $count: {} }
-            }
-        }
-    ]).exec()
-        .then((learnerGender) => {
-            sendJSONResponse(res, 200, learnerGender);
-        })
-        .catch((error) => {
-            sendJSONResponse(res, 404, error);
-        });
-
-}
 
 module.exports.teachers_by_gender_by_institution_id = (req, res)=>{
     var institutionId = req.params.institutionId;

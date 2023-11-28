@@ -11,7 +11,7 @@ const sendJSONResponse = (res, status, content)=>{
 
 module.exports.add_institutions = async(req, res)=>{
 
-    if(!req.body.institution_name || !req.body.institution_address){
+    if(!req.body.institution_name || !req.body.institution_address || !req.body.institution_district){
         sendJSONResponse(res, 404, {"message":"Please fill in all required fields"})
         return
     }
@@ -22,6 +22,7 @@ module.exports.add_institutions = async(req, res)=>{
      newInstitution.institution_contact_no = req.body.institution_contact_no
      newInstitution.institution_zone_name = req.body.institution_zone_name
      newInstitution.institution_code = req.body.institution_code
+     newInstitution.institution_district = req.body.institution_district
 
      await newInstitution
      .save()
@@ -75,6 +76,7 @@ module.exports.update_institution = (req, res)=>{
     let institution_contact_no = req.body.institution_contact_no
     let institution_zone_name = req.body.institution_zone_name
     let institution_code = req.body.institution_code
+    let institution_district = req.body.institution_district
 
     if(!req.params.institutionId){
         sendJSONResponse(res, 404, {"message":"Institution id is required"})
@@ -86,7 +88,8 @@ module.exports.update_institution = (req, res)=>{
                     institution_address:institution_address,
                     institution_contact_no:institution_contact_no,
                     institution_zone_name:institution_zone_name,
-                    institution_code:institution_code
+                    institution_code:institution_code,
+                    institution_district:institution_district
 
                 }
             ).exec()

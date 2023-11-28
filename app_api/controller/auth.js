@@ -2,6 +2,7 @@ const mongoose = require("mongoose")
 const { token } = require("morgan")
 const User = mongoose.model("User")
 const Person = mongoose.model("Person")
+const Institution = mongoose.model("Institution")
 const passport = require("passport")
 const nodemailer = require("nodemailer")
 
@@ -28,10 +29,24 @@ var transporter = nodemailer.createTransport({
     }
 })
 
-module.exports.register_user = (req, res)=>{
+
+function generateRandomString() {
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let randomString = '';
+  
+    for (let i = 0; i < 8; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      randomString += characters.charAt(randomIndex);
+    }
+  
+    return randomString;
+  }
+  
+
+module.exports.register_user = async(req, res)=>{
 
   
-    if(!req.body.nationalId || !req.body.firstname || !req.body.lastname || 
+    if(!req.body.firstname || !req.body.lastname || 
         !req.body.gender || !req.body.dob || !req.body.email || !req.body.usertype_name){
             sendJSONresponse(res, 404, {"message":"please fill in all required fields!"})
         }
@@ -41,8 +56,11 @@ module.exports.register_user = (req, res)=>{
     
         let password = Math.random().toString(36).slice(-8)
         user.setPassword(password)
+
+        let national_id = generateRandomString()
+        national_id.toUpperCase()
     
-        person.nationalId = req.body.nationalId
+        person.nationalId = national_id
         person.firstname = req.body.firstname
         person.lastname = req.body.lastname
         person.gender = req.body.gender
@@ -58,8 +76,21 @@ module.exports.register_user = (req, res)=>{
         //username // either email or learners code.
         user.usertype =  req.body.usertype // employee or learner 
         user.usertype_name = req.body.usertype_name // can be Head Master, Teacher, Super Admin or Learner
-        // personId // generated after creating person
-    
+        // personId // generated after creating person   
+
+
+        let institution_code = ""
+        let district =""
+        let districtShorthand =""
+        const currentYear = new Date().getFullYear()
+        let codeAdditions = ""
+        const data = await Institution.findOne({ institution_id: req.body.institutionId }).exec();
+        institution_code = data.institution_code
+        district = data.institution_district
+        districtShorthand = district.slice(0, 3)
+        codeAdditions = currentYear+"/"+districtShorthand+"/"+institution_code+"/"
+     
+       
         let mailOptions = {
             from: 'justicemwanzamj@gmail.com',
             to: req.body.email,
@@ -104,6 +135,7 @@ module.exports.register_user = (req, res)=>{
                       })
     
                    }else if(req.body.usertype === "Learner"){
+
                         let learnerId = Math.floor(1000 + Math.random() * 9000);
                         let unique = true
                         while(unique){
@@ -112,8 +144,9 @@ module.exports.register_user = (req, res)=>{
                                 unique = false
                             }
                         }
-                        user.username = (person.gender === "Male") ? "M"+learnerId : "F"+learnerId;
-                      
+
+                        user.username = (person.gender === "Male") ? codeAdditions+"M"+learnerId : codeAdditions+"F"+learnerId;
+                        //sendJSONresponse(res, 200, user.username)
                         const pdfFileName = person.firstname+" "+person.lastname+' credentials.pdf';
                         const filePath = path.join(__dirname, pdfFileName);
                         if(!fs.existsSync(filePath)){
@@ -219,13 +252,14 @@ module.exports.update_user = (req, res)=>{
         }
 }
 
+
 module.exports.update_user_password = (req, res)=>{
     let password = req.body.password
     if(!req.params.userId){
         sendJSONresponse(res, 404, {"message":"Not found, user id is required!"})
     }else{
         User
-         .findById(req.prams.userId)
+         .findById(req.params.userId)
          .exec()
          .then((user)=>{
             if(!user){

@@ -8,7 +8,8 @@ const institutionSchema = new mongoose.Schema({
     institution_zone_name:{type: String},
     institution_code:{type: String},
     institution_icon:{type: String},
-    has_admin:{type:Boolean, 'default':false}
+    has_admin:{type:Boolean, 'default':false},
+    institution_district:{type: String}
 
 })
 
