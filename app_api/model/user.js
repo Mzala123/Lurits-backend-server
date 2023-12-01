@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     usertype:{type: String, required: true},
     usertype_name:{type: String, required: true},
     personId:{type: mongoose.Schema.Types.ObjectId, required:true},
+    classId:{type: mongoose.Schema.Types.ObjectId},
     created_at:{type: Date, 'default':Date.now()},
     hash: String,
     salt: String

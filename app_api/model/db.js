@@ -44,3 +44,4 @@ process.on('SIGINT', function(){
 require('./institution')
 require('./user')
 require('./person')
+require('./classDetails')
