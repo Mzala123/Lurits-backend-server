@@ -41,4 +41,9 @@ router.post('/configure_subjects', ctrlClassConfig.configure_subjects)
 router.get('/read_list_classes', ctrlClassConfig.read_list_classes)
 router.get('/read_list_subjects', ctrlClassConfig.read_list_subjects)
 
+router.post('/configure_class_subjects', ctrlClassConfig.configure_class_subjects)
+router.get('/read_subjects_available_in_class/:classId', ctrlClassConfig.read_subjects_available_in_class)
+router.put('/assign_student_class/:userId', ctrlClassConfig.assign_student_class)
+
+
 module.exports = router;

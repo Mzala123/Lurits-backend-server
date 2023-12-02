@@ -1,9 +1,11 @@
+const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose')
 
 const Classes = mongoose.model("Classes")
 const Subjects = mongoose.model("Subjects")
 const classSubjects = mongoose.model("classSubjects");
 const classAssignments = mongoose.model("classAssignments")
+const User = mongoose.model("User")
 
 const sendJSONResponse = (res, status, content)=>{
     res.status(status)
@@ -86,4 +88,118 @@ module.exports.read_list_subjects = (req, res)=>{
         sendJSONResponse(res, 404, error)
      })
 
+}
+
+module.exports.configure_class_subjects = (req, res)=>{
+     if(!req.body.classId || !req.body.subjectId){
+         sendJSONResponse(res, 404, {"message":"Please fill in all required fields!"})
+         return;
+     }
+     const class_subjects = new classSubjects()
+     class_subjects.classId = req.body.classId
+     class_subjects.subjectId = req.body.subjectId
+     
+        class_subjects
+           .save()
+           .then((classSubject)=>{
+            sendJSONResponse(res, 201, classSubject)
+           }).catch((error)=>{
+            sendJSONResponse(res, 404, error)
+           })
+}
+
+module.exports.read_subjects_available_in_class = (req, res)=>{
+    const ObjectId = mongoose.Types.ObjectId
+    var classId = req.params.classId
+    try{
+       classId = new ObjectId(classId)
+    }catch(error){
+       sendJSONResponse(res, 400, {error:'Invalid ObjectId'})
+       return;
+    }
+
+    classSubjects
+       .aggregate(
+        [
+            {$match: {classId: {$eq:classId}}},
+            {
+                $project:{
+                    classId:1,
+                    subjectId:1,
+                    className:1,
+                   subjectName:1
+                }
+            },
+            {
+               $lookup:{
+                from:'classes',
+                localField: 'classId',
+                foreignField: '_id',
+                as: 'classDocs'
+               }   
+            },
+            {
+                $unwind: '$classDocs'
+            },
+            {
+               $lookup: {
+                 from:'subjects',
+                 localField:'subjectId',
+                 foreignField: '_id',
+                 as:'subjectDocs'
+               }
+            },
+            {
+                $unwind: '$subjectDocs'
+            }
+        ]
+       ).exec()
+         .then((data)=>{
+            sendJSONResponse(res, 200, data)
+         }).catch((error)=>{
+            sendJSONResponse(res, 401, error)
+         })
+}
+
+module.exports.assign_student_class = async (req, res)=>{
+    const ObjectId = mongoose.Types.ObjectId
+    let userId = req.params.userId
+    let classId = req.body.classId
+    try{
+        userId = new ObjectId(userId)
+    }catch(error){
+       sendJSONResponse(res, 400, {error:'Invalid ObjectId'})
+       return;
+    }
+     const userExist = await User.findOne({_id:userId})
+     const classExist = await classSubjects.findOne({classId:classId})
+
+     var class_assignements =  new classAssignments()
+     class_assignements.userType = userExist.usertype_name;
+     class_assignements.userId = userId
+     class_assignements.classSubjectId = classExist._id
+
+     if(!userExist.classId){
+        
+     const class_assigned =  await class_assignements.save()
+      if(class_assigned){
+        User
+        .updateOne({_id:userId},
+          {
+              classId: classId
+          }
+          ).exec()
+           .then((class_assignee)=>{ 
+                 sendJSONResponse(res, 200, { message: 'Class assigned to learner successfully',data: class_assignee});
+           }).catch((error)=>{
+              sendJSONResponse(res, 404, {"message":"Failed to assign class to learner"})
+           })
+      }else{
+        return;
+      }
+       
+     }else{
+        sendJSONResponse(res, 200, {"message":"Student already assigned a class!"})
+     }
+    
 }
