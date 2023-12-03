@@ -61,5 +61,7 @@ router.get('get_list_subjects_class_learner/:userId',ctrlLearner.get_list_subjec
 router.get('/read_subjects_classes_to_add_grades/:userId/:classId', ctrlTeacher.read_subjects_classes_to_add_grades)
 router.post('/add_learner_subject_grade', ctrlTeacher.add_learner_subject_grade)
 
+router.get('/read_student_deatils_with_grades/:institutionId', ctrlTeacher.read_student_deatils_with_grades)
+
 
 module.exports = router;
