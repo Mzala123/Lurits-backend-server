@@ -54,7 +54,7 @@ router.put('/assign_student_class/:userId', ctrlClassConfig.assign_student_class
 router.post('/assign_class_to_teacher/:userId', ctrlClassConfig.assign_class_to_teacher)
 
 //learner grades and subjects in class
-router.get('get_list_subjects_class_learner/:userId',ctrlLearner.get_list_subjects_class_learner)
+router.get('/get_list_subjects_class_learner/:institutionId/:userId',ctrlLearner.get_list_subjects_class_learner)
 
 
 //Teacher add grades and reports list
