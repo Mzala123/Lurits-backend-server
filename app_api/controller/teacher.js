@@ -239,11 +239,6 @@ module.exports.read_student_deatils_with_grades = (req, res)=>{
             
             {
                 $project:{
-                    // institutionName: "$institution_name",
-                    // learnerFirstname: "$institutionPeople.firstname",
-                    // learnerLastname: "$institutionPeople.lastname",
-                    // learnerUsername: "$userDetails.username",
-                    // score: "$gradesDocs.score",
                     _id: 0, // Exclude the group ID
                     institutionName: 1,
                     learnerFirstName: 1,
