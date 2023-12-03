@@ -11,6 +11,9 @@ const ctrlAuth = require('../app_api/controller/auth')
 const ctrlHeadTeacher = require('../app_api/controller/headteacher')
 const ctrlClassConfig = require('../app_api/controller/classDetails')
 
+const ctrlTeacher = require('../app_api/controller/teacher')
+const ctrlLearner = require('../app_api/controller/learner')
+
 
 router.post('/institution', ctrlInst.add_institutions)
 router.get('/institution_list', ctrlInst.institution_list)
@@ -30,7 +33,10 @@ router.put('/update_user_password/:userId', ctrlAuth.update_user_password)
 
 //  head teacher section
 router.get('/learners_list_by_institution_id/:institutionId', ctrlHeadTeacher.learners_list_by_institution_id)
+router.get('/unassigned_class_learners_list_by_institution_id/:institutionId', ctrlHeadTeacher.unassigned_class_learners_list_by_institution_id)
+
 router.get('/teachers_list_by_institution_id/:institutionId', ctrlHeadTeacher.teachers_list_by_institution_id)
+
 router.get('/learners_by_gender_by_institution_id/:institutionId', ctrlHeadTeacher.learners_by_gender_by_institution_id)
 router.get('/teachers_by_gender_by_institution_id/:institutionId', ctrlHeadTeacher.teachers_by_gender_by_institution_id)
 
@@ -44,6 +50,16 @@ router.get('/read_list_subjects', ctrlClassConfig.read_list_subjects)
 router.post('/configure_class_subjects', ctrlClassConfig.configure_class_subjects)
 router.get('/read_subjects_available_in_class/:classId', ctrlClassConfig.read_subjects_available_in_class)
 router.put('/assign_student_class/:userId', ctrlClassConfig.assign_student_class)
+
+router.post('/assign_class_to_teacher/:userId', ctrlClassConfig.assign_class_to_teacher)
+
+//learner grades and subjects in class
+router.get('get_list_subjects_class_learner/:userId',ctrlLearner.get_list_subjects_class_learner)
+
+
+//Teacher add grades and reports list
+router.get('/read_subjects_classes_to_add_grades/:userId/:classId', ctrlTeacher.read_subjects_classes_to_add_grades)
+router.post('/add_learner_subject_grade', ctrlTeacher.add_learner_subject_grade)
 
 
 module.exports = router;

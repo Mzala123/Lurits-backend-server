@@ -28,3 +28,13 @@ const classAssignmentsSchema = new  mongoose.Schema({
 })
 
 mongoose.model("classAssignments", classAssignmentsSchema)
+
+
+const gradeSchema = new mongoose.Schema({
+    learnerId:{type: mongoose.Schema.Types.ObjectId},
+    teacherId: {type: mongoose.Schema.Types.ObjectId},
+    classSubjectId: {type: mongoose.Schema.Types.ObjectId},
+    score: {type: Number}     
+})
+
+mongoose.model("grades", gradeSchema)

@@ -180,7 +180,7 @@ module.exports.assign_student_class = async (req, res)=>{
      class_assignements.classSubjectId = classExist._id
 
      if(!userExist.classId){
-        
+
      const class_assigned =  await class_assignements.save()
       if(class_assigned){
         User
@@ -200,6 +200,49 @@ module.exports.assign_student_class = async (req, res)=>{
        
      }else{
         sendJSONResponse(res, 200, {"message":"Student already assigned a class!"})
-     }
-    
+     }   
 }
+
+
+module.exports.assign_class_to_teacher = async(req, res)=>{
+
+    const ObjectId = mongoose.Types.ObjectId
+    let userId = req.params.userId
+    let classId = req.body.classId
+    let subjectId = req.body.subjectId
+    try{
+        userId = new ObjectId(userId)
+    }catch(error){
+       sendJSONResponse(res, 400, {error:'Invalid ObjectId'})
+       return;
+    }
+
+    const userExist = await User.findOne({_id:userId})
+    const classExist = await classSubjects.findOne({classId:classId, subjectId: subjectId })
+
+    var class_assignements =  new classAssignments()
+    class_assignements.userType = userExist.usertype_name;
+    class_assignements.userId = userId
+    class_assignements.classSubjectId = classExist._id
+    
+    const countSubjectAssignedToTeacher = await classAssignments.countDocuments({userId:userId})
+    //sendJSONResponse(res, 200, countSubjectAssignedToTeacher)
+    
+    if(countSubjectAssignedToTeacher <= 4){
+        const subject_teacher_assigned = await class_assignements.save()
+        if(subject_teacher_assigned){
+           sendJSONResponse(res, 200, {"message":"Subject assigned to teacher successfully"})
+        }else{
+           sendJSONResponse(res, 404, {"message":"Failed to assign a subject to a teacher"})
+        }
+    }else {
+        sendJSONResponse(res, 200, {"message":"Teacher should have a maximum of three Subjects"})
+    }
+
+}
+
+
+
+
+
+

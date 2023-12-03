@@ -28,7 +28,7 @@ module.exports.learners_list_by_institution_id = (req, res)=>{
                     firstname:1,
                     lastname:1,
                     gender:1,
-                    dob:1
+                    dob:{ $dateToString:{format: "%Y-%m-%d", date: "$dob" } }
                 }
                 },
                 {
@@ -52,10 +52,25 @@ module.exports.learners_list_by_institution_id = (req, res)=>{
                 },
                 {
                     $unwind:'$userDetails'
+                },
+                {
+                    $lookup:{
+                        from:'classes',
+                        localField:'userDetails.classId',
+                        foreignField:'_id',
+                        as:'classDetails'
+                    }
+                },
+                {
+                    $unwind:'$classDetails'
                 }
                 ,
                 {
                     $match:{'userDetails.usertype_name':'Learner'}
+                }
+                ,
+                {
+                    $match: { 'userDetails.classId': { $exists: true, $ne: null } } // Add this condition
                 }
             ]).exec()
                 .then((data) => {
@@ -65,6 +80,71 @@ module.exports.learners_list_by_institution_id = (req, res)=>{
                 console.error(error);
                 sendJSONResponse(res, 401, error);
                 });
+
+
+}
+
+module.exports.unassigned_class_learners_list_by_institution_id = (req, res)=>{
+
+    const ObjectId = mongoose.Types.ObjectId
+    var institutionId = req.params.institutionId
+    console.log("hie there learner! " +institutionId)
+
+           Institution.aggregate([
+               {
+               $match: {institution_id: {$eq: +institutionId}}
+               },
+               {
+               $project: {
+                   institution_id: 1,
+                   institution_name: 1,
+                   username:1,
+                   nationalId:1,
+                   firstname:1,
+                   lastname:1,
+                   gender:1,
+                   dob:{ $dateToString:{format: "%Y-%m-%d", date: "$dob" } }
+               }
+               },
+               {
+                   $lookup:{
+                       from:'people',
+                       localField:'institution_id',
+                       foreignField:'institutionId',
+                       as:'learnerDocs'
+                   }
+               },
+               {
+                   $unwind:'$learnerDocs'
+               },
+               {
+                   $lookup:{
+                       from:'users',
+                       localField:'learnerDocs._id',
+                       foreignField:'personId',
+                       as:'userDetails'
+                   }
+               },
+               {
+                   $unwind:'$userDetails'
+               }
+               ,
+               {
+                   $match:{'userDetails.usertype_name':'Learner'}
+               }
+               ,
+               {
+                   $match: { 'userDetails.classId': { $exists: false, $eq: null } } // Add this condition
+               }
+           ]).exec()
+               .then((data) => {
+               sendJSONResponse(res, 200, data);
+               })
+               .catch((error) => {
+               console.error(error);
+               sendJSONResponse(res, 401, error);
+               });
+
 
 
 }
@@ -88,7 +168,7 @@ module.exports.teachers_list_by_institution_id = (req, res)=>{
                     firstname:1,
                     lastname:1,
                     gender:1,
-                    dob:1
+                    dob:{ $dateToString:{format: "%Y-%m-%d", date: "$dob" } },
                 }
                 },
                 {

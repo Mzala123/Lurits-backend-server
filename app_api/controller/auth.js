@@ -281,6 +281,7 @@ module.exports.update_user_password = (req, res)=>{
 
 }
 
+
 module.exports.read_one_user_details = (req, res)=>{
     const ObjectId = mongoose.Types.ObjectId
     var userId = req.params.userId
@@ -342,6 +343,6 @@ module.exports.read_one_user_details = (req, res)=>{
             sendJSONresponse(res, 401, error)
         })
 
-}
+} 
 
 
