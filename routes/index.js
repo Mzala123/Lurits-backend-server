@@ -13,6 +13,7 @@ const ctrlClassConfig = require('../app_api/controller/classDetails')
 
 const ctrlTeacher = require('../app_api/controller/teacher')
 const ctrlLearner = require('../app_api/controller/learner')
+const ctrlAttendance = require('../app_api/controller/attendance')
 
 
 router.post('/institution', ctrlInst.add_institutions)
@@ -62,6 +63,9 @@ router.get('/read_subjects_classes_to_add_grades/:userId/:classId', ctrlTeacher.
 router.post('/add_learner_subject_grade', ctrlTeacher.add_learner_subject_grade)
 
 router.get('/read_student_deatils_with_grades/:institutionId', ctrlTeacher.read_student_deatils_with_grades)
+
+router.post('/log_student_attendance', ctrlAttendance.log_student_attendance)
+router.get('/attendance_list/:institutionId', ctrlAttendance.attendance_list)
 
 
 module.exports = router;
