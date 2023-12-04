@@ -41,13 +41,8 @@ module.exports.log_student_attendance = (req, res)=>{
 //     //     }).catch((error)=>{
 //     //         sendJSONResponse(res, 404, error)
 //     //     })
-  
-       
-
 // }
-
 // 
-
 
 module.exports.attendance_list = (req, res) => {
     let institutionId = req.params.institutionId;
@@ -69,7 +64,13 @@ module.exports.attendance_list = (req, res) => {
                         isPresent: "$isPresent",
                         classId: "$classId",
                         status: "$status",
-                        attendance_date: "$attendanceDate"
+                        attendanceDate: {
+                            $dateToString: {
+                                format: "%Y-%m-%d",
+                                date: "$attendanceDate",
+                            },
+                        }
+                       // attendance_date: "$attendanceDate"
                     },
                 },
             },
@@ -101,6 +102,7 @@ module.exports.attendance_list = (req, res) => {
             $project: {
                 _id: 0,
                 learnerId: "$_id.learnerId",
+                learnerCode:"$userData.username",
                 firstname:"$personData.firstname",
                 lastname:"$personData.lastname",
                 details: "$details"
